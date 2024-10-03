@@ -25,23 +25,24 @@ class Gossip(Device):
 
     def run(self):
         while True:
-            if self.index() == self.number_of_devices()-1:
-                destination = 0
-            else:
-                destination = self.index() + 1
-
-            message = GossipMessage(self.index(), destination, self._secrets)
-            self.medium().send(message)
+            destination = (self.index()+1) % (self.number_of_devices())
+            
+            if self.index() == 0:
+                message = GossipMessage(self.index(), destination, self._secrets)
+                self.medium().send(message)
 
             ingoing = self.medium().receive()
-            while(ingoing is None):
+            while ingoing is None:
                 ingoing = self.medium().receive()
-            self._secrets.update(ingoing.secrets)
+            self._secrets = self._secrets.union(ingoing.secrets)
+            message = GossipMessage(self.index(), destination, self._secrets.union(ingoing.secrets))
+            self.medium().send(message)
 
-            print(f"secrets: {self._secrets} num devices: {self.number_of_devices()}")
             if len(self._secrets) == self.number_of_devices():
                 print(f"Device {self.index()} got all secrets")
                 break
+
+            
 
     def print_result(self):
         print(f'\tDevice {self.index()} got secrets: {self._secrets}')
