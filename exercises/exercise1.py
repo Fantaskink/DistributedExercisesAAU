@@ -25,15 +25,17 @@ class Gossip(Device):
 
     def run(self):
         while True:
-            for i in range(0, self.number_of_devices()):
-                if i == self.index():
-                    continue
-                message = GossipMessage(self.index(), i, self._secrets)
-                self.medium().send(message)
+            if self.index() == self.number_of_devices()-1:
+                destination = 0
+            else:
+                destination = self.index() + 1
+
+            message = GossipMessage(self.index(), destination, self._secrets)
+            self.medium().send(message)
 
             ingoing = self.medium().receive()
-            if ingoing is None:
-                continue
+            while(ingoing is None):
+                ingoing = self.medium().receive()
             self._secrets.update(ingoing.secrets)
 
             print(f"secrets: {self._secrets} num devices: {self.number_of_devices()}")
