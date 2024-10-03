@@ -22,11 +22,24 @@ class Gossip(Device):
         # or sharing of all the public keys in a cryptographic system
         self._secrets = set([index])
 
+
     def run(self):
-        # the following is your termination condition, but where should it be placed?
-        # if len(self._secrets) == self.number_of_devices():
-        #    return
-        return
+        while True:
+            for i in range(0, self.number_of_devices()):
+                if i == self.index():
+                    continue
+                message = GossipMessage(self.index(), i, self._secrets)
+                self.medium().send(message)
+
+            ingoing = self.medium().receive()
+            if ingoing is None:
+                continue
+            self._secrets.update(ingoing.secrets)
+
+            print(f"secrets: {self._secrets} num devices: {self.number_of_devices()}")
+            if len(self._secrets) == self.number_of_devices():
+                print(f"Device {self.index()} got all secrets")
+                break
 
     def print_result(self):
         print(f'\tDevice {self.index()} got secrets: {self._secrets}')

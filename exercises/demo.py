@@ -1,5 +1,4 @@
 import random
-
 from emulators.Device import Device
 from emulators.Medium import Medium
 from emulators.MessageStub import MessageStub
@@ -39,7 +38,7 @@ class PingPong(Device):
     # this method implements the actual algorithm
     def run(self):
         # for this algorithm, we will repeat the protocol 10 times and then stop
-        for repetetions in range(0, 10):
+        for repetitions in range(0, 10):
             # in each repetition, let us send the ping to one random other device
             message = PingMessage(self.index(), random.randrange(0, self.number_of_devices()), self._is_ping)
             # we send the message via a "medium"
